@@ -3,7 +3,6 @@
  *
  * @group unit/parser/schema/
  */
-
 import {
   KafkaMskEventSchema,
   KafkaSelfManagedEventSchema,

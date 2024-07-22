@@ -3,7 +3,6 @@
  *
  * @group unit/parser/schema/
  */
-
 import { DynamoDBStreamSchema } from '../../../src/schemas/';
 import { TestEvents } from './utils.js';
 

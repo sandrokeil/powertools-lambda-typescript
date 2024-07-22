@@ -3,11 +3,10 @@
  *
  * @group unit/parser/schema/
  */
-
 import {
   CloudFormationCustomResourceCreateSchema,
-  CloudFormationCustomResourceUpdateSchema,
   CloudFormationCustomResourceDeleteSchema,
+  CloudFormationCustomResourceUpdateSchema,
 } from '../../../src/schemas/';
 import { TestEvents } from './utils.js';
 

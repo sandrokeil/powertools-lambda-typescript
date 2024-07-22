@@ -3,7 +3,6 @@
  *
  * @group unit/parser/schema/
  */
-
 import { EventBridgeSchema } from '../../../src/schemas/';
 import { TestEvents } from './utils.js';
 

@@ -1,8 +1,9 @@
-import { z, type ZodSchema } from 'zod';
-import type { ParsedResult } from '../types/parser.js';
+import type { ZodSchema, z } from 'zod';
 import { ParseError } from '../errors.js';
+import type { ParsedResult } from '../types/parser.js';
 
 export class Envelope {
+  public name = 'Envelope';
   /**
    * Abstract function to parse the content of the envelope using provided schema.
    * Both inputs are provided as unknown by the user.
@@ -23,11 +24,14 @@ export class Envelope {
     try {
       if (typeof data === 'string') {
         return schema.parse(JSON.parse(data));
-      } else if (typeof data === 'object') {
+      }
+      if (typeof data === 'object') {
         return schema.parse(data);
       }
-    } catch (e) {
-      throw new ParseError(`Failed to parse envelope`, { cause: e as Error });
+    } catch (error) {
+      throw new ParseError('Failed to parse envelope', {
+        cause: error as Error,
+      });
     }
   };
 
@@ -63,16 +67,16 @@ export class Envelope {
           }
         : {
             success: false,
-            error: new ParseError(`Failed to parse envelope`, {
+            error: new ParseError('Failed to parse envelope', {
               cause: parsed.error,
             }),
             originalEvent: input,
           };
-    } catch (e) {
+    } catch (error) {
       return {
         success: false,
-        error: new ParseError(`Failed to parse envelope`, {
-          cause: e as Error,
+        error: new ParseError('Failed to parse envelope', {
+          cause: error as Error,
         }),
         originalEvent: input,
       };

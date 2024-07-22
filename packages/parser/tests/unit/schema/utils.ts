@@ -106,11 +106,11 @@ const loadFileContent = (filename: string): string =>
 const createTestEvents = (fileList: readonly string[]): TestEvents => {
   const testEvents: Partial<TestEvents> = {};
 
-  fileList.forEach((filename) => {
-    Object.defineProperty(testEvents, filename, {
-      get: () => JSON.parse(loadFileContent(filename)),
+  for (const fileName of fileList) {
+    Object.defineProperty(testEvents, fileName, {
+      get: () => JSON.parse(loadFileContent(fileName)),
     });
-  });
+  }
 
   return testEvents as TestEvents;
 };

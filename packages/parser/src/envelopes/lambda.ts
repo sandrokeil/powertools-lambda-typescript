@@ -1,13 +1,14 @@
-import { Envelope } from './envelope.js';
-import { z, type ZodSchema } from 'zod';
+import type { ZodSchema, z } from 'zod';
+import { ParseError } from '../errors.js';
 import { LambdaFunctionUrlSchema } from '../schemas/index.js';
 import type { ParsedResult } from '../types/index.js';
-import { ParseError } from '../errors.js';
+import { Envelope } from './envelope.js';
 
 /**
  * Lambda function URL envelope to extract data within body key
  */
 export class LambdaFunctionUrlEnvelope extends Envelope {
+  public name = 'LambdaFunctionUrlEnvelope';
   public static parse<T extends ZodSchema>(
     data: unknown,
     schema: T
@@ -18,7 +19,7 @@ export class LambdaFunctionUrlEnvelope extends Envelope {
       throw new Error('Body field of Lambda function URL event is undefined');
     }
 
-    return super.parse(parsedEnvelope.body, schema);
+    return Envelope.parse(parsedEnvelope.body, schema);
   }
 
   public static safeParse<T extends ZodSchema>(
@@ -35,7 +36,7 @@ export class LambdaFunctionUrlEnvelope extends Envelope {
       };
     }
 
-    const parsedBody = super.safeParse(parsedEnvelope.data.body, schema);
+    const parsedBody = Envelope.safeParse(parsedEnvelope.data.body, schema);
     if (!parsedBody.success) {
       return {
         success: false,

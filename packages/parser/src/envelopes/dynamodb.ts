@@ -1,9 +1,9 @@
-import { z, type ZodSchema } from 'zod';
+import type { ZodSchema, z } from 'zod';
+import { ParseError } from '../errors.js';
 import { DynamoDBStreamSchema } from '../schemas/index.js';
+import type { DynamoDBStreamEnvelopeResponse } from '../types/envelope.js';
 import type { ParsedResult, ParsedResultError } from '../types/index.js';
 import { Envelope } from './envelope.js';
-import { ParseError } from '../errors.js';
-import type { DynamoDBStreamEnvelopeResponse } from '../types/envelope.js';
 
 /**
  * DynamoDB Stream Envelope to extract data within NewImage/OldImage
@@ -12,6 +12,7 @@ import type { DynamoDBStreamEnvelopeResponse } from '../types/envelope.js';
  * length of the list is the record's amount in the original event.
  */
 export class DynamoDBStreamEnvelope extends Envelope {
+  public name = 'DynamoDBStreamEnvelope';
   public static parse<T extends ZodSchema>(
     data: unknown,
     schema: T
@@ -20,8 +21,8 @@ export class DynamoDBStreamEnvelope extends Envelope {
 
     return parsedEnvelope.Records.map((record) => {
       return {
-        NewImage: super.parse(record.dynamodb.NewImage, schema),
-        OldImage: super.parse(record.dynamodb.OldImage, schema),
+        NewImage: Envelope.parse(record.dynamodb.NewImage, schema),
+        OldImage: Envelope.parse(record.dynamodb.OldImage, schema),
       };
     });
   }
@@ -44,8 +45,14 @@ export class DynamoDBStreamEnvelope extends Envelope {
     const parsedLogEvents: DynamoDBStreamEnvelopeResponse<z.infer<T>>[] = [];
 
     for (const record of parsedEnvelope.data.Records) {
-      const parsedNewImage = super.safeParse(record.dynamodb.NewImage, schema);
-      const parsedOldImage = super.safeParse(record.dynamodb.OldImage, schema);
+      const parsedNewImage = Envelope.safeParse(
+        record.dynamodb.NewImage,
+        schema
+      );
+      const parsedOldImage = Envelope.safeParse(
+        record.dynamodb.OldImage,
+        schema
+      );
       if (!parsedNewImage.success || !parsedOldImage.success) {
         return {
           success: false,
@@ -58,12 +65,11 @@ export class DynamoDBStreamEnvelope extends Envelope {
               }),
           originalEvent: data,
         };
-      } else {
-        parsedLogEvents.push({
-          NewImage: parsedNewImage.data,
-          OldImage: parsedOldImage.data,
-        });
       }
+      parsedLogEvents.push({
+        NewImage: parsedNewImage.data,
+        OldImage: parsedOldImage.data,
+      });
     }
 
     return {

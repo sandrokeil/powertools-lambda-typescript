@@ -1,11 +1,11 @@
-import { z, type ZodSchema } from 'zod';
-import { Envelope } from './envelope.js';
+import type { ZodSchema, z } from 'zod';
+import { ParseError } from '../errors.js';
 import {
   KafkaMskEventSchema,
   KafkaSelfManagedEventSchema,
 } from '../schemas/kafka.js';
-import { ParsedResult, KafkaMskEvent } from '../types/index.js';
-import { ParseError } from '../errors.js';
+import type { KafkaMskEvent, ParsedResult } from '../types/index.js';
+import { Envelope } from './envelope.js';
 
 /**
  * Kafka event envelope to extract data within body key
@@ -17,12 +17,13 @@ import { ParseError } from '../errors.js';
  */
 
 export class KafkaEnvelope extends Envelope {
+  public name = 'KafkaEnvelope';
   public static parse<T extends ZodSchema>(
     data: unknown,
     schema: T
   ): z.infer<T>[] {
     // manually fetch event source to deside between Msk or SelfManaged
-    const eventSource = (data as KafkaMskEvent)['eventSource'];
+    const eventSource = (data as KafkaMskEvent).eventSource;
 
     const parsedEnvelope:
       | z.infer<typeof KafkaMskEventSchema>
@@ -33,7 +34,7 @@ export class KafkaEnvelope extends Envelope {
 
     return Object.values(parsedEnvelope.records).map((topicRecord) => {
       return topicRecord.map((record) => {
-        return super.parse(record.value, schema);
+        return Envelope.parse(record.value, schema);
       });
     });
   }
@@ -43,7 +44,7 @@ export class KafkaEnvelope extends Envelope {
     schema: T
   ): ParsedResult {
     // manually fetch event source to deside between Msk or SelfManaged
-    const eventSource = (data as KafkaMskEvent)['eventSource'];
+    const eventSource = (data as KafkaMskEvent).eventSource;
 
     const parsedEnvelope =
       eventSource === 'aws:kafka'
@@ -63,7 +64,7 @@ export class KafkaEnvelope extends Envelope {
 
     for (const topicRecord of Object.values(parsedEnvelope.data.records)) {
       for (const record of topicRecord) {
-        const parsedRecord = super.safeParse(record.value, schema);
+        const parsedRecord = Envelope.safeParse(record.value, schema);
         if (!parsedRecord.success) {
           return {
             success: false,

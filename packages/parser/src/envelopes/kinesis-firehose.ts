@@ -1,8 +1,8 @@
-import { z, type ZodSchema } from 'zod';
-import { Envelope } from './envelope.js';
+import type { ZodSchema, z } from 'zod';
+import { ParseError } from '../errors.js';
 import { KinesisFirehoseSchema } from '../schemas/index.js';
 import type { ParsedResult } from '../types/index.js';
-import { ParseError } from '../errors.js';
+import { Envelope } from './envelope.js';
 
 /**
  * Kinesis Firehose Envelope to extract array of Records
@@ -17,6 +17,7 @@ import { ParseError } from '../errors.js';
  *  https://docs.aws.amazon.com/lambda/latest/dg/services-kinesisfirehose.html
  */
 export class KinesisFirehoseEnvelope extends Envelope {
+  public name = 'KinesisFirehoseEnvelope';
   public static parse<T extends ZodSchema>(
     data: unknown,
     schema: T
@@ -24,7 +25,7 @@ export class KinesisFirehoseEnvelope extends Envelope {
     const parsedEnvelope = KinesisFirehoseSchema.parse(data);
 
     return parsedEnvelope.records.map((record) => {
-      return super.parse(record.data, schema);
+      return Envelope.parse(record.data, schema);
     });
   }
 
@@ -46,7 +47,7 @@ export class KinesisFirehoseEnvelope extends Envelope {
     const parsedRecords: z.infer<T>[] = [];
 
     for (const record of parsedEnvelope.data.records) {
-      const parsedData = super.safeParse(record.data, schema);
+      const parsedData = Envelope.safeParse(record.data, schema);
       if (!parsedData.success) {
         return {
           success: false,

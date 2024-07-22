@@ -53,17 +53,16 @@ const S3RecordSchema = z
     s3: S3Message,
     glacierEventData: z.optional(S3EventRecordGlacierEventData),
   })
-  .refine((value) => {
-    return (
+  .refine(
+    (value) =>
       (!value.eventName.includes('ObjectRemoved') &&
         value.s3.object.size === undefined) ||
-        value.s3.object.eTag === undefined,
-      {
-        message:
-          'S3 event notification with ObjectRemoved event name must have size or eTag defined',
-      }
-    );
-  });
+      value.s3.object.eTag === undefined,
+    {
+      message:
+        'S3 event notification with ObjectRemoved event name must have size or eTag defined',
+    }
+  );
 
 const S3EventNotificationEventBridgeDetailSchema = z.object({
   version: z.string(),

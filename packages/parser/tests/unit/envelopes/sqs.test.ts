@@ -3,12 +3,11 @@
  *
  * @group unit/parser/envelopes
  */
-
 import { generateMock } from '@anatine/zod-mock';
-import { TestEvents, TestSchema } from '../schema/utils.js';
-import { SQSEvent } from 'aws-lambda';
+import type { SQSEvent } from 'aws-lambda';
 import { SqsEnvelope } from '../../../src/envelopes/sqs.js';
 import { ParseError } from '../../../src/errors.js';
+import { TestEvents, TestSchema } from '../schema/utils.js';
 
 describe('SqsEnvelope ', () => {
   describe('parse', () => {

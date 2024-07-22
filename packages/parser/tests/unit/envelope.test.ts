@@ -3,8 +3,7 @@
  *
  * @group unit/parser
  */
-
-import { z, ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 import { Envelope } from '../../src/envelopes/envelope.js';
 import { ParseError } from '../../src/errors.js';
 
